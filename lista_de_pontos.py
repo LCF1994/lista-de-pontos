@@ -167,7 +167,7 @@ def consulta(bd, tipo, arquivo=True, contagem=True):
 
     if arquivo:
         gera_arquivo(resultado, nome_do_arquivo)
-        print('Arquivo gerado com o nome : {}'. nome_do_arquvio)
+        print('Arquivo gerado com o nome : {}'. format(nome_do_arquivo))
 
     if contagem:
         exibe_resultados(bd, exibicao, query)
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     # contexto = '/export/home/sagetr1/sage/config/aie_gvs/bd'
     brsql = Pybrsql(ct_or_path=contexto, source='xdr')
 
-    consulta(brsql, 'digital', arquivo=False)
-    # consulta(brsql, 'analogico', arquivo=False)
-    # consulta(brsql, 'comandos', arquivo=False)
+    consulta(brsql, 'digital', arquivo=True)
+    consulta(brsql, 'analogico', arquivo=True)
+    consulta(brsql, 'comandos', arquivo=True)
     

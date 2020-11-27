@@ -127,3 +127,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+lista_de_pontos.py
