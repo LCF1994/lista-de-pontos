@@ -175,24 +175,3 @@ if __name__ == '__main__':
     consulta(brsql, 'digital', arquivo=True)
     consulta(brsql, 'analogico', arquivo=True)
     consulta(brsql, 'comandos', arquivo=True)
-
-'''
-brsql.consulta_bd(query_digital(brsql))
-pontos_digitais = brsql.tocsv()
-# print('Pontos Digitais :')
-# brsql.tabula()
-# gera_arquivo(pontos_digitais, 'Template_de_pontos_digitais.csv')
-
-brsql.consulta_bd(query_analogica(brsql))
-# pontos_analogicos = brsql.tocsv()
-print('Pontos Analogicos :')
-brsql.tabula()
-# gera_arquivo(pontos_digitais, 'Template_de_pontos_analogicos.csv')
-
-brsql.consulta_bd(query_comandos())
-# print('Comandos Configurados :')
-# comandos = brsql.tabula()
-# gera_arquivo(pontos_digitais, 'Template_de_comandos.csv')
-
-exibe_resultados(brsql, 'Pontos Digitais', query_digital(brsql))
-'''
