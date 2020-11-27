@@ -3,11 +3,6 @@ from pybrsql import Pybrsql
 import json
 
 
-# contexto = os.environ['BD']
-contexto = '/export/home/sagetr1/sage/config/mt_eln/bd'
-brsql = Pybrsql(ct_or_path=contexto, source='xdr')
-
-
 def query_comandos():
     return '''select
     cgs.id,
@@ -31,6 +26,11 @@ def query_comandos():
 
 def query_digital(bd):
 
+    if check_iccp(bd):
+        iccp = 'pds.idiccp as id_iccp,'
+    else:
+        iccp = ''
+
     bd.consulta_bd('''
     select distinct
     idtdd
@@ -46,6 +46,7 @@ def query_digital(bd):
     pds.idocr as ocr,
     pds.idlia as rele,
     COALESCE(tcl.id, 'NLCL') as calculo,
+    {}
     COALESCE(pdf.id, '') as end,
     {}
     FROM pds
@@ -55,7 +56,7 @@ def query_digital(bd):
     on pds.a_tcl = tcl.br_rowid
     {}
     where pds.idlia !=''
-    '''.format(colunas, joins)
+    '''.format(iccp, colunas, joins)
     return query
 
 
@@ -158,6 +159,7 @@ def consulta(bd, tipo, arquivo=True, contagem=True):
         nome_do_arquivo = 'Template_de_comandos.csv'
         exibicao = 'Comandos Configurados'
     else:
+        # "Tipos de consultas : digital, analogico, comandos"  
         return  # erro de querisicao
 
     bd.consulta_bd(query)
@@ -171,7 +173,21 @@ def consulta(bd, tipo, arquivo=True, contagem=True):
         exibe_resultados(bd, exibicao, query)
 
 
+def check_iccp(bd):
+    query = "select count(*) as id from pro where id like '%%iccp%' "
+    bd.consulta_bd(query)
+    resultado = json.loads(bd.tojson())
+
+    return bool(resultado[0]['id'])
+
+
 if __name__ == '__main__':
-    consulta(brsql, 'digital', arquivo=True)
-    consulta(brsql, 'analogico', arquivo=True)
-    consulta(brsql, 'comandos', arquivo=True)
+    contexto = os.environ['BD']
+    # contexto = '/export/home/sagetr1/sage/config/mt_eln/bd'
+    # contexto = '/export/home/sagetr1/sage/config/aie_gvs/bd'
+    brsql = Pybrsql(ct_or_path=contexto, source='xdr')
+
+    consulta(brsql, 'digital', arquivo=False)
+    # consulta(brsql, 'analogico', arquivo=False)
+    # consulta(brsql, 'comandos', arquivo=False)
+    
