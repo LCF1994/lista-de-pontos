@@ -63,7 +63,8 @@ def endereco_distribuicao_digital(lista_tdds):
     coluna = ''
     join = ''
     for i, tdd in enumerate(lista_tdds):
-        coluna += 'pdf{}.id as endereco_{}, '.format(i, tdd['idtdd'])
+        coluna += "COALESCE(pdf{}.id,'') as endereco_{}, ".format(
+            i, tdd['idtdd'])
 
         join += '''
         left join (select * from pdd where idtdd = '{}') as pdd{}
@@ -103,7 +104,6 @@ def query_analogica(bd):
     on pas.a_tcl = tcl.br_rowid
     {}
     where pas.idlia !=''
-    limit 20
     '''.format(colunas, joins)
     return query
 
@@ -112,7 +112,8 @@ def endereco_distribuicao_analogico(lista_tdds):
     coluna = ''
     join = ''
     for i, tdd in enumerate(lista_tdds):
-        coluna += 'paf{}.id as endereco_{}, '.format(i, tdd['idtdd'])
+        coluna += "COALESCE(paf{}.id,'') as endereco_{}, ".format(
+            i, tdd['idtdd'])
 
         join += '''
         left join (select * from pad where idtdd = '{}') as pad{}
@@ -126,11 +127,11 @@ def endereco_distribuicao_analogico(lista_tdds):
     return coluna, join
 
 
-def exibe_resultados(bd, query):
+def exibe_resultados(bd, tipo, query):
     bd.consulta_bd('select count(*) as pontos from ({})'.format(query))
-    bd.tabula()
+    resultado = json.loads(bd.tojson())
 
-    print(bd.tojson())
+    print('{} : {}'.format(tipo, resultado[0]['pontos']))
 
 
 def gera_arquivo(conteudo, nome):
@@ -140,19 +141,58 @@ def gera_arquivo(conteudo, nome):
         f.writelines(conteudo)
 
 
+def consulta(bd, tipo, arquivo=True, contagem=True):
+    if not arquivo and not contagem:
+        return
+
+    if tipo == 'digital':
+        query = query_digital(bd)
+        nome_do_arquivo = 'Template_de_pontos_digitais.csv'
+        exibicao = 'Pontos Digitais'
+    elif tipo == 'analogico':
+        query = query_analogica(bd)
+        nome_do_arquivo = 'Template_de_pontos_analogicos.csv'
+        exibicao = 'Pontos Analogicos'
+    elif tipo == 'comandos':
+        query = query_comandos()
+        nome_do_arquivo = 'Template_de_comandos.csv'
+        exibicao = 'Comandos Configurados'
+    else:
+        return  # erro de querisicao
+
+    bd.consulta_bd(query)
+    resultado = bd.tocsv()
+
+    if arquivo:
+        gera_arquivo(resultado, nome_do_arquivo)
+        print('Arquivo gerado com o nome : {}'. nome_do_arquvio)
+
+    if contagem:
+        exibe_resultados(bd, exibicao, query)
+
+
+if __name__ == '__main__':
+    consulta(brsql, 'digital', arquivo=True)
+    consulta(brsql, 'analogico', arquivo=True)
+    consulta(brsql, 'comandos', arquivo=True)
+
+'''
 brsql.consulta_bd(query_digital(brsql))
 pontos_digitais = brsql.tocsv()
-print('Pontos Digitais :')
-brsql.tabula()
+# print('Pontos Digitais :')
+# brsql.tabula()
 # gera_arquivo(pontos_digitais, 'Template_de_pontos_digitais.csv')
 
 brsql.consulta_bd(query_analogica(brsql))
-pontos_analogicos = brsql.tocsv()
+# pontos_analogicos = brsql.tocsv()
 print('Pontos Analogicos :')
 brsql.tabula()
 # gera_arquivo(pontos_digitais, 'Template_de_pontos_analogicos.csv')
 
 brsql.consulta_bd(query_comandos())
-print('Comandos Configurados :')
-comandos = brsql.tabula()
+# print('Comandos Configurados :')
+# comandos = brsql.tabula()
 # gera_arquivo(pontos_digitais, 'Template_de_comandos.csv')
+
+exibe_resultados(brsql, 'Pontos Digitais', query_digital(brsql))
+'''
