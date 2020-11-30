@@ -144,4 +144,4 @@ if __name__ == '__main__':
     consulta(brsql, 'digital', arquivo=True)
     consulta(brsql, 'analogico', arquivo=True)
     consulta(brsql, 'comandos', arquivo=True)
-    
+

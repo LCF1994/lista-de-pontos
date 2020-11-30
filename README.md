@@ -10,8 +10,8 @@ O objetivo desse Script é gerar uma lista de pontos de maneira rápida e fácil
 
 ## Modo de uso
 
-1- Mova o script "lista_de_pontos.py" para a pasta $SAGE na máquina onde deseja utilizar.
-2- Execute o comando : python lista_de_pontos.py
+1. Mova o script "lista_de_pontos.py" para a pasta $SAGE na máquina onde deseja utilizar.
+2. Execute o comando : python lista_de_pontos.py
 
 
 ## Resultado esperado
