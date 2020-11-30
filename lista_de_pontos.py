@@ -22,106 +22,58 @@ def query_comandos():
     left join tctl
     on cgs.a_tctl = tctl.br_rowid
     '''
-    
+   
 
-def query_digital(bd):
+def query_pontos(bd, tipo):
 
     if check_iccp(bd):
-        iccp = 'pds.idiccp as id_iccp,'
+        iccp = 'p{t}s.idiccp as id_iccp,'
     else:
         iccp = ''
 
     bd.consulta_bd('''
     select distinct
     idtdd
-    from pdd
-    ''')
+    from p{}d
+    '''.format(tipo))
     
-    colunas, joins = endereco_distribuicao_digital(
-        json.loads(brsql.tojson()))
+    colunas, joins = endereco_distribuicao(
+        json.loads(brsql.tojson()), tipo)
 
     query = '''select
-    pds.id as id,
-    pds.nome as nome,
-    pds.idocr as ocr,
-    pds.idlia as rele,
+    p{t}s.id as id,
+    p{t}s.nome as nome,
+    p{t}s.idocr as ocr,
+    p{t}s.idlia as rele,
     COALESCE(tcl.id, 'NLCL') as calculo,
     {}
-    COALESCE(pdf.id, '') as end,
+    COALESCE(p{t}f.id, '') as end,
     {}
-    FROM pds
-    left join pdf
-    on pds.a_pdf = pdf.br_rowid
+    FROM p{t}s
+    left join p{t}f
+    on p{t}s.a_p{t}f = p{t}f.br_rowid
     left join tcl
-    on pds.a_tcl = tcl.br_rowid
+    on p{t}s.a_tcl = tcl.br_rowid
     {}
-    where pds.idlia !=''
-    '''.format(iccp, colunas, joins)
+    where p{t}s.idlia !=''
+    '''.format(iccp, colunas, joins, t=tipo)
     return query
 
 
-def endereco_distribuicao_digital(lista_tdds):
+def endereco_distribuicao(lista_tdds, tipo):
     coluna = ''
     join = ''
     for i, tdd in enumerate(lista_tdds):
-        coluna += "COALESCE(pdf{}.id,'') as endereco_{}, ".format(
-            i, tdd['idtdd'])
+        coluna += "COALESCE(p{t}f{}.id,'') as endereco_{}, ".format(
+            i, tdd['idtdd'], t=tipo)
 
         join += '''
-        left join (select * from pdd where idtdd = '{}') as pdd{}
-        on pds.id = pdd{}.idpds
-        left join pdf as pdf{}
-        on pdd{}.a_pdf = pdf{}.br_rowid 
-        '''.format(tdd['idtdd'], i, i, i, i, i)
-
-    coluna = coluna[:-2]
-
-    return coluna, join
-
-
-def query_analogica(bd):
-
-    bd.consulta_bd('''
-    select distinct
-    idtdd
-    from pad
-    ''')
-    
-    colunas, joins = endereco_distribuicao_analogico(
-        json.loads(brsql.tojson()))
-
-    query = '''select
-    pas.id as id,
-    pas.nome as nome,
-    pas.idocr as ocr,
-    pas.idlia as rele,
-    COALESCE(tcl.id, 'NLCL') as calculo,
-    COALESCE(paf.id, '') as end,
-    {}
-    FROM pas
-    left join paf
-    on pas.a_paf = paf.br_rowid
-    left join tcl
-    on pas.a_tcl = tcl.br_rowid
-    {}
-    where pas.idlia !=''
-    '''.format(colunas, joins)
-    return query
-
-
-def endereco_distribuicao_analogico(lista_tdds):
-    coluna = ''
-    join = ''
-    for i, tdd in enumerate(lista_tdds):
-        coluna += "COALESCE(paf{}.id,'') as endereco_{}, ".format(
-            i, tdd['idtdd'])
-
-        join += '''
-        left join (select * from pad where idtdd = '{}') as pad{}
-        on pas.id = pad{}.idpas
-        left join paf as paf{}
-        on pad{}.a_paf = paf{}.br_rowid 
-        '''.format(tdd['idtdd'], i, i, i, i, i)
+        left join (select * from p{t}d 
+        where idtdd = '{}') as p{t}d{i}
+        on p{t}s.id = p{t}d{i}.idp{t}s
+        left join p{t}f as p{t}f{i}
+        on p{t}d{i}.a_p{t}f = p{t}f{i}.br_rowid 
+        '''.format(tdd['idtdd'], i=i, t=tipo)
 
     coluna = coluna[:-2]
 
@@ -147,11 +99,13 @@ def consulta(bd, tipo, arquivo=True, contagem=True):
         return
 
     if tipo == 'digital':
-        query = query_digital(bd)
+        # query = query_digital(bd)
+        query = query_pontos(bd, 'd')
         nome_do_arquivo = 'Template_de_pontos_digitais.csv'
         exibicao = 'Pontos Digitais'
     elif tipo == 'analogico':
-        query = query_analogica(bd)
+        # query = query_analogica(bd)
+        query = query_pontos(bd, 'a')
         nome_do_arquivo = 'Template_de_pontos_analogicos.csv'
         exibicao = 'Pontos Analogicos'
     elif tipo == 'comandos':
