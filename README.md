@@ -17,12 +17,12 @@ O objetivo desse Script é gerar uma lista de pontos de maneira rápida e fácil
 ## Resultado esperado
 
 O script irá mostar na tela:
-    - Número de pontos digitais;
-    - Nome do arquivo gerado contendo os pontos digitais;
-    - Número de pontos analógicos;
-    - Nome do arquivo gerado contendo os pontos analógicos;
-    - Número de Comandos configurados;
-    - Nome do arquivo com os comandos configurados
+- Número de pontos digitais;
+- Nome do arquivo gerado contendo os pontos digitais;
+- Número de pontos analógicos;
+- Nome do arquivo gerado contendo os pontos analógicos;
+- Número de Comandos configurados;
+- Nome do arquivo com os comandos configurados
 
 
 ## Funcionamento
@@ -35,10 +35,10 @@ outros caminhos para outras bases existentes na máquina podem ser utilizados.
 
 As consultas são feitas individualmente para pontos digitais, analógicos ou comandos configurados.
 Cada consulta executa uma função que tem como parametros:
-    - brsql: objeto Pybrsql inicializado conforme contexto da base de dados a ser consultada;
-    - tipo: Consulta ('digital', 'analogico', 'comandos');
-    - arquivo: Flag binária indicando se haverá ou não exportação de arquivo da consulta;
-    - contagem: Flag binária indicando se será realizada e exibida a contagem de resultados
+- brsql: objeto Pybrsql inicializado conforme contexto da base de dados a ser consultada;
+- tipo: Consulta ('digital', 'analogico', 'comandos');
+- arquivo: Flag binária indicando se haverá ou não exportação de arquivo da consulta;
+- contagem: Flag binária indicando se será realizada e exibida a contagem de resultados
 
 
 ## Testes
