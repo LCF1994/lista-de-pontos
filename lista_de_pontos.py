@@ -36,8 +36,8 @@ def query_pontos(bd, tipo):
     bd.consulta_bd('''
     select distinct
     idtdd
-    from p{}d
-    '''.format(tipo))
+    from p{t}d
+    '''.format(t=tipo))
 
     colunas, joins = endereco_distribuicao(
         json.loads(brsql.tojson()), tipo)
@@ -70,11 +70,11 @@ def endereco_distribuicao(lista_tdds, tipo):
             i, tdd['idtdd'], t=tipo)
 
         join += '''
-        left join (select * from p{t}d 
+        left join (select * from p{t}d
         where idtdd = '{}') as p{t}d{i}
         on p{t}s.id = p{t}d{i}.idp{t}s
         left join p{t}f as p{t}f{i}
-        on p{t}d{i}.a_p{t}f = p{t}f{i}.br_rowid 
+        on p{t}d{i}.a_p{t}f = p{t}f{i}.br_rowid
         '''.format(tdd['idtdd'], i=i, t=tipo)
 
     coluna = coluna[:-2]
