@@ -1,3 +1,5 @@
+# Programa Desenvolvido por Lucas Campos Ferreira
+
 import os
 from pybrsql import Pybrsql
 import json
@@ -22,7 +24,7 @@ def query_comandos():
     left join tctl
     on cgs.a_tctl = tctl.br_rowid
     '''
-   
+
 
 def query_pontos(bd, tipo):
 
@@ -36,7 +38,7 @@ def query_pontos(bd, tipo):
     idtdd
     from p{}d
     '''.format(tipo))
-    
+
     colunas, joins = endereco_distribuicao(
         json.loads(brsql.tojson()), tipo)
 
@@ -99,12 +101,10 @@ def consulta(bd, tipo, arquivo=True, contagem=True):
         return
 
     if tipo == 'digital':
-        # query = query_digital(bd)
         query = query_pontos(bd, 'd')
         nome_do_arquivo = 'Template_de_pontos_digitais.csv'
         exibicao = 'Pontos Digitais'
     elif tipo == 'analogico':
-        # query = query_analogica(bd)
         query = query_pontos(bd, 'a')
         nome_do_arquivo = 'Template_de_pontos_analogicos.csv'
         exibicao = 'Pontos Analogicos'
@@ -113,7 +113,7 @@ def consulta(bd, tipo, arquivo=True, contagem=True):
         nome_do_arquivo = 'Template_de_comandos.csv'
         exibicao = 'Comandos Configurados'
     else:
-        # "Tipos de consultas : digital, analogico, comandos"  
+        # "Tipos de consultas : digital, analogico, comandos"
         return  # erro de querisicao
 
     bd.consulta_bd(query)
@@ -137,11 +137,9 @@ def check_iccp(bd):
 
 if __name__ == '__main__':
     contexto = os.environ['BD']
-    # contexto = '/export/home/sagetr1/sage/config/mt_eln/bd'
-    # contexto = '/export/home/sagetr1/sage/config/aie_gvs/bd'
+    # contexto = '/export/home/sagetr1/sage/config/{}/bd'.format(nome_da_base)
     brsql = Pybrsql(ct_or_path=contexto, source='xdr')
 
-    consulta(brsql, 'digital', arquivo=True)
-    consulta(brsql, 'analogico', arquivo=True)
-    consulta(brsql, 'comandos', arquivo=True)
-
+    consulta(brsql, 'digital', arquivo=True, contagem=True)
+    consulta(brsql, 'analogico', arquivo=True, contagem=True)
+    consulta(brsql, 'comandos', arquivo=True, contagem=True)
