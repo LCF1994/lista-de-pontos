@@ -30,7 +30,7 @@ O script irá mostar na tela:
 Através do módulo Pybrsql, o script faz uma série de consultas nos arquivos xdr e 
 a partir do resultado dessas consultas faz uma contagem de resultados e exporta 3 arquivos csv.
 
-O caminho para os arquivos é definido por um contexto, por padrão $BD está sendo utilizado, porém
+O caminho para os arquivos é definido por um contexto. Por padrão, $BD está sendo utilizado, porém
 outros caminhos para outras bases existentes na máquina podem ser utilizados.
 
 As consultas são feitas individualmente para pontos digitais, analógicos ou comandos configurados.
