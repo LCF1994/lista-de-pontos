@@ -49,7 +49,7 @@ def query_pontos(bd, tipo):
     p{t}s.idlia as rele,
     COALESCE(tcl.id, 'NLCL') as calculo,
     {}
-    COALESCE(p{t}f.id, '') as end,
+    COALESCE(p{t}f.id, '') as end
     {}
     FROM p{t}s
     left join p{t}f
@@ -63,7 +63,7 @@ def query_pontos(bd, tipo):
 
 
 def endereco_distribuicao(lista_tdds, tipo):
-    coluna = ''
+    coluna = ', '
     join = ''
     for i, tdd in enumerate(lista_tdds):
         coluna += "COALESCE(p{t}f{}.id,'') as endereco_{}, ".format(
