@@ -6,78 +6,82 @@ import json
 
 
 def query_comandos():
-    return '''select
-    cgs.id,
-    cgs.nome,
-    cgs.idpac as feedback,
-    tctl.dlg_close as comando_1,
-    tctl.dlg_trip as comando_0,
-    cgs.idpit as intertravamento,
-    cgf.id as end_aquisicao,
-    cgf.kconv,
-    COALESCE(cgf2.id,'') as end_dist
-    from cgs
-    left join cgf
-    on cgs.a_cgf = cgf.br_rowid
-    left join cgf as cgf2
-    on cgs.id = REPLACE(cgf2.kconv, "CGS= ", "")
-    left join tctl
-    on cgs.a_tctl = tctl.br_rowid
-    '''
+    return (
+        'SELECT '
+        'cgs.id, '
+        'cgs.nome, '
+        'cgs.idpac AS feedback, '
+        'tctl.dlg_close AS comando_1, '
+        'tctl.dlg_trip AS comando_0, '
+        'cgs.idpit AS intertravamento, '
+        'cgf.id AS end_aquisicao, '
+        'cgf.kconv, '
+        "COALESCE(cgf2.id,'') AS end_dist "
+        'FROM cgs '
+        'LEFT JOIN cgf ON cgs.a_cgf = cgf.br_rowid '
+        'LEFT JOIN cgf as cgf2 '
+        'ON cgs.id = REPLACE(cgf2.kconv, "CGS= ", "") '
+        'LEFT JOIN tctl '
+        'ON cgs.a_tctl = tctl.br_rowid'
+    )
 
 
 def query_pontos(bd, tipo):
 
     if check_iccp(bd):
-        iccp = 'p{t}s.idiccp as id_iccp,'
+        iccp = 'p{t}s.idiccp AS id_iccp,'.format(t=tipo)
     else:
         iccp = ''
 
-    bd.consulta_bd('''
-    select distinct
-    idtdd
-    from p{t}d
-    '''.format(t=tipo))
+    bd.consulta_bd(
+        ( 
+        "SELECT DISTINCT idtdd FROM p{t}d"
+        ).format(t=tipo))
 
     colunas, joins = endereco_distribuicao(
         json.loads(brsql.tojson()), tipo)
 
-    query = '''select
-    p{t}s.id as id,
-    p{t}s.nome as nome,
-    p{t}s.idocr as ocr,
-    p{t}s.idlia as rele,
-    COALESCE(tcl.id, 'NLCL') as calculo,
-    {}
-    COALESCE(p{t}f.id, '') as end
-    {}
-    FROM p{t}s
-    left join p{t}f
-    on p{t}s.a_p{t}f = p{t}f.br_rowid
-    left join tcl
-    on p{t}s.a_tcl = tcl.br_rowid
-    {}
-    where p{t}s.idlia !=''
-    '''.format(iccp, colunas, joins, t=tipo)
+    if tipo == 'd':
+        colunas = ', ocr1.texto AS valor_1, ocr2.texto AS valor_0' + colunas
+        joins = ' LEFT JOIN ocr AS ocr2 ON pds.a_ocr = ocr2.br_rowid-4 ' + joins
+        joins = ' LEFT JOIN ocr AS ocr1 ON pds.a_ocr = ocr1.br_rowid-3 ' + joins
+
+    query = (
+        'SELECT '
+        'p{t}s.id AS id, '
+        'p{t}s.nome AS nome, '
+        'p{t}s.idocr AS ocr, '
+        'p{t}s.idlia AS rele, '
+        "COALESCE(tcl.id, 'NLCL') AS calculo, "
+        '{}'
+        "COALESCE(p{t}f.id, '') AS end {} "
+        'FROM p{t}s '
+        'LEFT JOIN p{t}f '
+        'ON p{t}s.a_p{t}f = p{t}f.br_rowid '
+        'LEFT JOIN tcl '
+        'ON p{t}s.a_tcl = tcl.br_rowid '
+        '{} '
+        "WHERE p{t}s.idlia !='' "
+        ).format(iccp, colunas, joins, t=tipo)
+
     return query
 
 
 def endereco_distribuicao(lista_tdds, tipo):
-    coluna = ', '
-    join = ''
+    coluna, join = '', '' 
+
     for i, tdd in enumerate(lista_tdds):
-        coluna += "COALESCE(p{t}f{}.id,'') as endereco_{}, ".format(
-            i, tdd['idtdd'], t=tipo)
-
-        join += '''
-        left join (select * from p{t}d
-        where idtdd = '{}') as p{t}d{i}
-        on p{t}s.id = p{t}d{i}.idp{t}s
-        left join p{t}f as p{t}f{i}
-        on p{t}d{i}.a_p{t}f = p{t}f{i}.br_rowid
-        '''.format(tdd['idtdd'], i=i, t=tipo)
-
-    coluna = coluna[:-2]
+        coluna += ", COALESCE(p{t}f{}.id,'') AS 'endereco_{}' ".format(i, tdd['idtdd'], t=tipo)
+        
+        join += (
+        "LEFT JOIN ( "
+            "SELECT id, idp{t}s, a_p{t}f FROM p{t}d "
+            "where idtdd LIKE '{}' "
+            ") AS p{t}d{i} "
+        "ON p{t}s.id=p{t}d{i}.idp{t}s "
+        "LEFT JOIN p{t}f AS p{t}f{i} "
+        "ON p{t}d{i}.a_p{t}f=p{t}f{i}.br_rowid "
+        ).format(tdd['idtdd'], i=i, t=tipo)
 
     return coluna, join
 
