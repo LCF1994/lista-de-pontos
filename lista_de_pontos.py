@@ -34,8 +34,8 @@ def query_pontos(bd, tipo):
         iccp = ''
 
     bd.consulta_bd(
-        ( 
-        "SELECT DISTINCT idtdd FROM p{t}d"
+        (
+            "SELECT DISTINCT idtdd FROM p{t}d"
         ).format(t=tipo))
 
     colunas, joins = endereco_distribuicao(
@@ -43,8 +43,8 @@ def query_pontos(bd, tipo):
 
     if tipo == 'd':
         colunas = ', ocr1.texto AS valor_1, ocr2.texto AS valor_0' + colunas
-        joins = ' LEFT JOIN ocr AS ocr2 ON pds.a_ocr = ocr2.br_rowid-4 ' + joins
-        joins = ' LEFT JOIN ocr AS ocr1 ON pds.a_ocr = ocr1.br_rowid-3 ' + joins
+        joins = ' LEFT JOIN ocr AS ocr2 ON pds.a_ocr=ocr2.br_rowid-4 ' + joins
+        joins = ' LEFT JOIN ocr AS ocr1 ON pds.a_ocr=ocr1.br_rowid-3 ' + joins
 
     query = (
         'SELECT '
@@ -68,19 +68,20 @@ def query_pontos(bd, tipo):
 
 
 def endereco_distribuicao(lista_tdds, tipo):
-    coluna, join = '', '' 
+    coluna, join = '', ''
 
     for i, tdd in enumerate(lista_tdds):
-        coluna += ", COALESCE(p{t}f{}.id,'') AS 'endereco_{}' ".format(i, tdd['idtdd'], t=tipo)
-        
+        coluna += ", COALESCE(p{t}f{}.id,'') AS 'endereco_{}' ".format(
+            i, tdd['idtdd'], t=tipo)
+
         join += (
-        "LEFT JOIN ( "
+            "LEFT JOIN ( "
             "SELECT id, idp{t}s, a_p{t}f FROM p{t}d "
             "where idtdd LIKE '{}' "
             ") AS p{t}d{i} "
-        "ON p{t}s.id=p{t}d{i}.idp{t}s "
-        "LEFT JOIN p{t}f AS p{t}f{i} "
-        "ON p{t}d{i}.a_p{t}f=p{t}f{i}.br_rowid "
+            "ON p{t}s.id=p{t}d{i}.idp{t}s "
+            "LEFT JOIN p{t}f AS p{t}f{i} "
+            "ON p{t}d{i}.a_p{t}f=p{t}f{i}.br_rowid "
         ).format(tdd['idtdd'], i=i, t=tipo)
 
     return coluna, join
