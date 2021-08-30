@@ -67,6 +67,14 @@ def query_pontos(bd, tipo):
     return query
 
 
+def check_iccp(bd):
+    query = "select count(*) as id from pro where id like '%%iccp%' "
+    bd.consulta_bd(query)
+    resultado = json.loads(bd.tojson())
+
+    return bool(resultado[0]['id'])
+
+
 def endereco_distribuicao(lista_tdds, tipo):
     coluna, join = '', ''
 
@@ -101,21 +109,21 @@ def gera_arquivo(conteudo, nome):
         f.writelines(conteudo)
 
 
-def consulta(bd, tipo, arquivo=True, contagem=True):
+def consulta(bd, base, tipo, arquivo=True, contagem=True):
     if not arquivo and not contagem:
         return
 
     if tipo == 'digital':
         query = query_pontos(bd, 'd')
-        nome_do_arquivo = 'Template_de_pontos_digitais.csv'
+        nome_do_arquivo = 'Pontos_digitais_{}.csv'.format(base)
         exibicao = 'Pontos Digitais'
     elif tipo == 'analogico':
         query = query_pontos(bd, 'a')
-        nome_do_arquivo = 'Template_de_pontos_analogicos.csv'
+        nome_do_arquivo = 'Pontos_analogicos_{}.csv'.format(base)
         exibicao = 'Pontos Analogicos'
     elif tipo == 'comandos':
         query = query_comandos()
-        nome_do_arquivo = 'Template_de_comandos.csv'
+        nome_do_arquivo = 'Comandos_configurados_{}.csv'.format(base)
         exibicao = 'Comandos Configurados'
     else:
         # "Tipos de consultas : digital, analogico, comandos"
@@ -132,19 +140,11 @@ def consulta(bd, tipo, arquivo=True, contagem=True):
         exibe_resultados(bd, exibicao, query)
 
 
-def check_iccp(bd):
-    query = "select count(*) as id from pro where id like '%%iccp%' "
-    bd.consulta_bd(query)
-    resultado = json.loads(bd.tojson())
-
-    return bool(resultado[0]['id'])
-
-
 if __name__ == '__main__':
-    contexto = os.environ['BD']
-    # contexto = '/export/home/sagetr1/sage/config/{}/bd'.format(nome_da_base)
+    BASE = os.environ['BASE']
+    contexto = '/export/home/sagetr1/sage/config/{}/bd'.format(BASE)
     brsql = Pybrsql(ct_or_path=contexto, source='xdr')
 
-    consulta(brsql, 'digital', arquivo=True, contagem=True)
-    consulta(brsql, 'analogico', arquivo=True, contagem=True)
-    consulta(brsql, 'comandos', arquivo=True, contagem=True)
+    consulta(brsql, BASE, 'digital',   arquivo=True, contagem=True)
+    consulta(brsql, BASE, 'analogico', arquivo=True, contagem=True)
+    consulta(brsql, BASE, 'comandos',  arquivo=True, contagem=True)
